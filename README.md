@@ -1,1 +1,1 @@
-# workout-generator
+Like the 7-minute workout, but programatically generated and configurable.
