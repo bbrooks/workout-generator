@@ -17,5 +17,8 @@ export const sounds = {
         'squats': 'squats.mp3',
         'tricep-dips': 'tricep-dips.mp3',
         'wall-sit': 'wall-sit.mp3'
+    },
+    'backgrounds': {
+        'beat1': 'beat1.mp3',
     }
 }

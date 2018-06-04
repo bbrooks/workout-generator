@@ -8,10 +8,15 @@ export class Orchestrator {
     }
     
     async go() {
-        const exercises = this.getExercises()
+        const background = new PromiseAudio(this.getBeat());
+        const exercises = this.getExercises();
+        background.audio.loop = true;
+        background.audio.volume = 0.5;
+        background.audio.play()
         for (let i = 0; i < exercises.length; i++) {
             await this.playExercise(exercises[i])
         }
+        background.audio.pause();
         this.play(sounds.transitions.complete);
     }
 
@@ -32,6 +37,11 @@ export class Orchestrator {
 
     getExercises() {
         return this.shuffle(Object.values(sounds.exercises));
+    }
+
+    getBeat() {
+        const beats = Object.values(sounds.backgrounds);
+        return beats[Math.floor(Math.random()*beats.length)];
     }
 
     async playExercise(path) {
