@@ -10,13 +10,13 @@ export class Orchestrator {
     async go() {
         const background = new PromiseAudio(this.getBeat());
         const exercises = this.getExercises();
-        background.audio.loop = true;
-        background.audio.volume = 0.5;
-        background.audio.play()
+        // background.audio.loop = true;
+        // background.audio.volume = 0.5;
+        // background.audio.play()
         for (let i = 0; i < exercises.length; i++) {
             await this.playExercise(exercises[i])
         }
-        background.audio.pause();
+        // background.audio.pause();
         this.play(sounds.transitions.complete);
     }
 
