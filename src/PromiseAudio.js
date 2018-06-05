@@ -1,7 +1,8 @@
 export class PromiseAudio {
-    constructor(src) {
+    constructor(src, loop) {
         this.audio = new Howl({
-            src: ['./sounds/' + src]
+            src: ['./sounds/' + src],
+            loop
         });
     }
     play() {
@@ -9,5 +10,10 @@ export class PromiseAudio {
             this.audio.on('end', resolve);
             this.audio.play()
         });
+    }
+    load() {
+        return new Promise(resolve => {
+            this.audio.once('load', resolve);
+        });  
     }
 }

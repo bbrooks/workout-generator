@@ -5,19 +5,29 @@ export class Orchestrator {
     constructor() {
         this.restLength = 5 * 1000;
         this.workoutLength = 30 * 1000;
+        this.exercises = this.getExercises();
+        this.background = new PromiseAudio(this.getBeat(), true);
+        this.isPlaying = false;
+    }
+
+    load() {
+        const loadingPromises = this.exercises.map(exercise => new PromiseAudio(exercise).load());
+        return Promise.all(loadingPromises);
     }
     
     async go() {
-        const background = new PromiseAudio(this.getBeat());
-        const exercises = this.getExercises();
-        // background.audio.loop = true;
-        // background.audio.volume = 0.5;
-        // background.audio.play()
+        const background = this.background;
+        const exercises = this.exercises;
+        const loadingPromises = exercises.map(exercise => new PromiseAudio(exercise).load());
+        loadingPromises.push(background.load());
+        this.isPlaying = true;
+        background.audio.play()
         for (let i = 0; i < exercises.length; i++) {
             await this.playExercise(exercises[i])
         }
-        // background.audio.pause();
-        this.play(sounds.transitions.complete);
+        background.audio.pause();
+        await this.play(sounds.transitions.complete);
+        this.isPlaying = false;
     }
 
     wait(milliseconds) {

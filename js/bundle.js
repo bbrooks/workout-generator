@@ -2,9 +2,10 @@
     'use strict';
 
     class PromiseAudio {
-        constructor(src) {
+        constructor(src, loop) {
             this.audio = new Howl({
-                src: ['./sounds/' + src]
+                src: ['./sounds/' + src],
+                loop
             });
         }
         play() {
@@ -12,6 +13,11 @@
                 this.audio.on('end', resolve);
                 this.audio.play();
             });
+        }
+        load() {
+            return new Promise(resolve => {
+                this.audio.once('load', resolve);
+            });  
         }
     }
 
@@ -44,19 +50,29 @@
         constructor() {
             this.restLength = 5 * 1000;
             this.workoutLength = 30 * 1000;
+            this.exercises = this.getExercises();
+            this.background = new PromiseAudio(this.getBeat(), true);
+            this.isPlaying = false;
+        }
+
+        load() {
+            const loadingPromises = this.exercises.map(exercise => new PromiseAudio(exercise).load());
+            return Promise.all(loadingPromises);
         }
         
         async go() {
-            const background = new PromiseAudio(this.getBeat());
-            const exercises = this.getExercises();
-            // background.audio.loop = true;
-            // background.audio.volume = 0.5;
-            // background.audio.play()
+            const background = this.background;
+            const exercises = this.exercises;
+            const loadingPromises = exercises.map(exercise => new PromiseAudio(exercise).load());
+            loadingPromises.push(background.load());
+            this.isPlaying = true;
+            background.audio.play();
             for (let i = 0; i < exercises.length; i++) {
                 await this.playExercise(exercises[i]);
             }
-            // background.audio.pause();
-            this.play(sounds.transitions.complete);
+            background.audio.pause();
+            await this.play(sounds.transitions.complete);
+            this.isPlaying = false;
         }
 
         wait(milliseconds) {
@@ -99,10 +115,22 @@
 
     }
 
-    document.getElementById('trigger')
-        .addEventListener('click', () => {
-            const o = new Orchestrator;
-            o.go();
+    (async () => {
+        const loadingWrap = document.getElementById('loading-wrap');
+        const loadedWrap = document.getElementById('loaded-wrap');
+        const playBtn = document.getElementById('play-btn');
+        const o = new Orchestrator;
+        playBtn.addEventListener('click', () => {
+            if(!o.isPlaying) {
+                o.go();
+                playBtn.classList.add('stop');
+            } else {
+                window.location.reload();
+            }
         });
+        await Promise.all([o.load(), o.wait(500)]);
+        loadingWrap.hidden = true;
+        loadedWrap.hidden = false;
+    })();
 
 }());
