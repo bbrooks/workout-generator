@@ -1,40 +1,16 @@
-import { PromiseAudio } from "./PromiseAudio";
-import { sounds } from "./sounds";
+import { sounds, soundsPrefix } from "./sounds";
 
 export class Orchestrator {
-    constructor() {
-        this.restLength = 5 * 1000;
-        this.workoutLength = 30 * 1000;
-        this.exercises = this.getExercises();
-        this.background = new PromiseAudio(this.getBeat(), true);
-        this.isPlaying = false;
+    constructor(audioObj) {
+        this.exercises = this.getExercisePaths();
+        this.audioObj = audioObj;
+        this.hasGone = false;
     }
 
-    load() {
-        const loadingPromises = this.exercises.map(exercise => new PromiseAudio(exercise).load());
-        return Promise.all(loadingPromises);
+    go() {
+        this.hasGone = true;
+        this.playSequence(this.getFullSequence());
     }
-    
-    async go() {
-        const background = this.background;
-        const exercises = this.exercises;
-        const loadingPromises = exercises.map(exercise => new PromiseAudio(exercise).load());
-        loadingPromises.push(background.load());
-        this.isPlaying = true;
-        background.audio.play()
-        for (let i = 0; i < exercises.length; i++) {
-            await this.playExercise(exercises[i])
-        }
-        background.audio.pause();
-        await this.play(sounds.transitions.complete);
-        this.isPlaying = false;
-    }
-
-    wait(milliseconds) {
-        return new Promise(resolve => {
-          setTimeout(() => resolve(milliseconds), milliseconds);
-        });
-    };
 
     shuffle(array) {
         const a = array.slice();
@@ -45,28 +21,41 @@ export class Orchestrator {
         return a;
     }
 
-    getExercises() {
-        return this.shuffle(Object.values(sounds.exercises));
+    getExercisePaths() {
+        const shuffled = this.shuffle(Object.values(sounds.exercises));
+        return shuffled.map(path => soundsPrefix + path);
     }
 
-    getBeat() {
-        const beats = Object.values(sounds.backgrounds);
-        return beats[Math.floor(Math.random()*beats.length)];
+    getFullSequence() {
+        const sequence = [];
+        this.exercises.forEach(excercise => {
+            sequence.push(...this.getSingleExerciseSequence(excercise));
+        });
+        sequence.push(soundsPrefix + sounds.transitions.complete);
+        return sequence;
     }
 
-    async playExercise(path) {
-        await this.play(sounds.transitions.next);
-        await this.play(path);
-        await this.wait(this.restLength);
-        await this.play(path);        
-        await this.play(sounds.transitions.go);
-        await this.wait(this.workoutLength);
-        return this.play(sounds.transitions.rest);;
+    getSingleExerciseSequence(exercise) {
+        return [
+            soundsPrefix + sounds.transitions.next,
+            exercise,
+            soundsPrefix + sounds.transitions["silence-5"],
+            exercise,
+            soundsPrefix + sounds.transitions.go,
+            soundsPrefix + sounds.transitions["silence-30"],
+            soundsPrefix + sounds.transitions.rest
+        ]
     }
 
-    play(path) {
-        return new PromiseAudio(path).play();
+    playSequence(soundPaths) {
+        const newSongList = soundPaths.slice();
+        const song = newSongList.shift();
+        if (song) {
+          this.audioObj.src = song;
+          this.audioObj.onended = () => {
+            this.playSequence(newSongList);
+          }
+          this.audioObj.play();
+        }
     }
-
-
 }

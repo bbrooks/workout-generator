@@ -3,7 +3,9 @@ export const sounds = {
         'next': 'next.mp3',
         'go': 'go.mp3',
         'complete': 'complete.mp3',
-        'rest': 'rest.mp3'
+        'rest': 'rest.mp3',
+        'silence-5': 'silence-5.mp3',
+        'silence-30': 'silence-30.mp3'
     },
     'exercises': {
         'chair-steps': 'chair-steps.mp3',
@@ -22,3 +24,5 @@ export const sounds = {
         'beat1': 'beat1.mp3',
     }
 }
+
+export const soundsPrefix = './sounds/'

@@ -49,42 +49,17 @@
                 transform: rotate(360deg);
             }
         }
-
-        .play-btn {
-            border: 0;
-            background: transparent;
-            box-sizing: border-box;
-            width: 0;
-            height: 74px;
-            border-color: transparent transparent transparent white;
-            transition: 100ms all ease;
-            cursor: pointer;
-            border-style: solid;
-            border-width: 37px 0 37px 60px;
-            text-indent: -9999px;
-        }
-
-        .play-btn.stop {
-            border: none;
-            background: white;
-            width: 74px;
-        }
-
-        .play-btn:active, .play-btn:focus {
-            outline:0;
-        }
     </style>
 </head>
 
 <body>
     <div id="loading-wrap">
         <div class="loading-spinner"></div>
-        <div class>Loading Audio...</div>
+        <div class>Loading...</div>
     </div>
     <div id="loaded-wrap" hidden>
-        <button class="play-btn" id="play-btn">Play</button>
+        <audio controls id="audio-el"></audio>
     </div>
-    <script src="js/vendor/howler.core.min.js"></script>
     <script src="js/bundle.js"></script>
 </body>
 
