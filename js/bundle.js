@@ -100,7 +100,7 @@
             // Randomize the different categories, but start with cardio
             let shuffledCategories = this.shuffle(Object.values(exerciseCategories).slice().filter(value => value !== exerciseCategories.cardio));
             shuffledCategories.unshift(exerciseCategories.cardio);
-            const exerciseGroups = shuffledCategories.map(category => sounds.excercises[category].slice());
+            const exerciseGroups = shuffledCategories.map(category => this.shuffle(sounds.excercises[category]));
 
             // Build an excercise list using one from each category for each round, in order of categories
             for(let i = 0; i < 3; i++) {
