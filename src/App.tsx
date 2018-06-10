@@ -1,6 +1,7 @@
 import * as React from 'react';
 import './App.css';
 import { Orchestrator } from './Orchestrator';
+import PlayButton from './PlayButton';
 
 interface IState {
   playing: boolean
@@ -23,27 +24,27 @@ class App extends React.Component {
   }
   public render() {
     return (
-      <button onClick={this.handleClick}>{this.state.playing ? 'pause' : 'play'}</button>
+      <PlayButton onClick={this.handleClick} playing={this.state.playing} />
     );
   }
 
   public handlePlay() {
-    this.setState({playing: true})
+    this.setState({ playing: true })
   }
   public handlePause() {
-    this.setState({playing: false})
+    this.setState({ playing: false })
   }
 
   public handleClick() {
-      if(!this.orchestrator.hasGone) {
-        this.orchestrator.go();
+    if (!this.orchestrator.hasGone) {
+      this.orchestrator.go();
+    } else {
+      if (this.audioEl.paused) {
+        this.audioEl.play();
       } else {
-        if(this.audioEl.paused) {
-          this.audioEl.play();
-        } else {
-          this.audioEl.pause();
-        }
+        this.audioEl.pause();
       }
+    }
   }
 }
 
