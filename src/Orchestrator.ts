@@ -1,36 +1,29 @@
-import { sounds, exerciseCategories } from "./sounds";
+import { exerciseCategories, sounds } from "./sounds";
+import { shuffle } from "./utils";
 
 export class Orchestrator {
-    constructor(audioObj) {
+    public hasGone: boolean;
+    private exercises: string[];
+    private audioObj: HTMLAudioElement;
+    constructor(audioObj: HTMLAudioElement) {
         this.exercises = this.getExercisePaths();
         this.audioObj = audioObj;
         this.hasGone = false;
-        this.rounds = 3;
     }
 
-    go() {
+    public go() {
         this.hasGone = true;
-        var thing = this.getFullSequence();
         this.playSequence(this.getFullSequence());
     }
 
-    shuffle(array) {
-        const a = array.slice();
-        for (let i = a.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [a[i], a[j]] = [a[j], a[i]];
-        }
-        return a;
-    }
-
     // Gets the files paths of the excercises in order
-    getExercisePaths() {
-        const paths = [];
+    private getExercisePaths(): string[] {
+        const paths: string[] = [];
 
         // Randomize the different categories, but start with cardio
-        let shuffledCategories = this.shuffle(Object.values(exerciseCategories).slice().filter(value => value !== exerciseCategories.cardio));
+        const shuffledCategories = shuffle(Object.keys(sounds.excercises).slice().filter(key => key !== exerciseCategories.cardio));
         shuffledCategories.unshift(exerciseCategories.cardio)
-        const exerciseGroups = shuffledCategories.map(category => this.shuffle(sounds.excercises[category]));
+        const exerciseGroups = shuffledCategories.map(category => shuffle(sounds.excercises[category]));
 
         // Build an excercise list using one from each category for each round, in order of categories
         for(let i = 0; i < 3; i++) {
@@ -47,7 +40,7 @@ export class Orchestrator {
 
     // Gets the sequence of sounds needed for the workout,
     // including the transition sounds and breaks.
-    getFullSequence() {
+    private getFullSequence() {
         const sequence = [sounds.transitions.welcome];
         this.exercises.forEach(excercise => {
             sequence.push(...this.getSingleExerciseSequence(excercise));
@@ -57,7 +50,7 @@ export class Orchestrator {
     }
 
     // Gets one exercise sequence, including intro sounds and silence
-    getSingleExerciseSequence(exercisePath) {
+    private getSingleExerciseSequence(exercisePath: string) {
         return [
             sounds.transitions.next,
             exercisePath,
@@ -70,7 +63,7 @@ export class Orchestrator {
     }
 
     // Plays a sequence of audio paths
-    playSequence(soundPaths) {
+    private playSequence(soundPaths: string[]) {
         const newSoundList = soundPaths.slice();
         const sound = newSoundList.shift();
         if (sound) {

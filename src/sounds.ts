@@ -1,20 +1,11 @@
 export const exerciseCategories = {
     cardio: 'cardio',
-    upperBody: 'upper-body',
+    core: 'core',
     lowerBody: 'lower-body',
-    core: 'core'
+    upperBody: 'upper-body',
 }
 
 export const sounds = {
-    transitions: {
-        welcome: './sounds/transitions/welcome.mp3',
-        next: './sounds/transitions/next.mp3',
-        go: './sounds/transitions/go.mp3',
-        complete: './sounds/transitions/complete.mp3',
-        rest: './sounds/transitions/rest.mp3',
-        silence5: './sounds/transitions/silence-5.mp3',
-        silence30: './sounds/transitions/silence-30.mp3'
-    },
     backgroundMusic: [
         './sounds/background-music/wall-sit.mp3',
     ],
@@ -64,5 +55,15 @@ export const sounds = {
             './sounds/lower-body/squats.mp3',
             './sounds/lower-body/wall-sit.mp3',
         ]
-    }
+    },
+    transitions: {
+        complete: './sounds/transitions/complete.mp3',
+        go: './sounds/transitions/go.mp3',
+        next: './sounds/transitions/next.mp3',
+        rest: './sounds/transitions/rest.mp3',
+        silence30: './sounds/transitions/silence-30.mp3',
+        silence5: './sounds/transitions/silence-5.mp3',
+        welcome: './sounds/transitions/welcome.mp3',
+    },
+
 }
