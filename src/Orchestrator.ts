@@ -3,17 +3,23 @@ import { shuffle } from "./utils";
 
 export class Orchestrator {
     public hasGone: boolean;
-    private exercises: string[];
     private audioObj: HTMLAudioElement;
+    private rounds: number;
+
     constructor(audioObj: HTMLAudioElement) {
-        this.exercises = this.getExercisePaths();
         this.audioObj = audioObj;
         this.hasGone = false;
     }
 
+    public setRounds(n: number) {
+        this.rounds = n;
+    }
+
     public go() {
         this.hasGone = true;
-        this.playSequence(this.getFullSequence());
+        this.playSequence(this.getFullSequence(), () => {
+            this.hasGone = false;    
+        });
     }
 
     // Gets the files paths of the excercises in order
@@ -26,7 +32,7 @@ export class Orchestrator {
         const exerciseGroups = shuffledCategories.map(category => shuffle(sounds.excercises[category]));
 
         // Build an excercise list using one from each category for each round, in order of categories
-        for(let i = 0; i < 3; i++) {
+        for(let i = 0; i < this.rounds; i++) {
             exerciseGroups.forEach(exerciseGroup => {
                 if(exerciseGroup.length > 1){
                     paths.push(exerciseGroup.shift())
@@ -42,7 +48,7 @@ export class Orchestrator {
     // including the transition sounds and breaks.
     private getFullSequence() {
         const sequence = [sounds.transitions.welcome];
-        this.exercises.forEach(excercise => {
+        this.getExercisePaths().forEach(excercise => {
             sequence.push(...this.getSingleExerciseSequence(excercise));
         });
         sequence.push(sounds.transitions.complete);
@@ -63,15 +69,17 @@ export class Orchestrator {
     }
 
     // Plays a sequence of audio paths
-    private playSequence(soundPaths: string[]) {
+    private playSequence(soundPaths: string[], cb: any) {
         const newSoundList = soundPaths.slice();
         const sound = newSoundList.shift();
         if (sound) {
           this.audioObj.src = sound;
           this.audioObj.onended = () => {
-            this.playSequence(newSoundList);
+            this.playSequence(newSoundList, cb);
           }
           this.audioObj.play();
+        } else {
+            cb();
         }
     }
 }
