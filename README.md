@@ -16,5 +16,4 @@ Like the 7-minute workout, but with more exercises and randomly generated each t
 * Gan Khoon Lay for the favicon
 * Zlatko Najdenovski for the play icon
 * Charlie Bob Gordon for the pause icon
-* Aneeque Ahmed for the gears icon
-All gotten from [The Noun Project](https://thenounproject.com)
+* [The Noun Project](https://thenounproject.com)
