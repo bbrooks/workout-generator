@@ -1,6 +1,6 @@
 Like the 7-minute workout, but with more exercises and randomly generated each time you listen.
 
-[screenshot](screenshot.png)
+![screenshot](screenshot.png)
 
 ### Todo:
 * ~Add more exercises~
