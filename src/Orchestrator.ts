@@ -62,7 +62,8 @@ export class Orchestrator {
         sequence.push(sounds.transitions.complete);
 
         if (sequence.indexOf(undefined!) !== -1) {
-            throw new Error('audio sequence contained undefined paths')
+            alert('Unexpected Error, try reloading.');
+            throw new Error('audio sequence contained undefined paths');
         }
 
         return sequence;

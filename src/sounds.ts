@@ -61,7 +61,7 @@ export const sounds = {
         go: process.env.PUBLIC_URL +'/sounds/transitions/go.mp3',
         next: process.env.PUBLIC_URL +'/sounds/transitions/next.mp3',
         rest: process.env.PUBLIC_URL +'/sounds/transitions/rest.mp3',
-        silence155: process.env.PUBLIC_URL +'/sounds/transitions/silence-15.mp3',
+        silence15: process.env.PUBLIC_URL +'/sounds/transitions/silence-15.mp3',
         silence30: process.env.PUBLIC_URL +'/sounds/transitions/silence-30.mp3',
         silence45: process.env.PUBLIC_URL +'/sounds/transitions/silence-45.mp3',
         silence5: process.env.PUBLIC_URL +'/sounds/transitions/silence-5.mp3',
