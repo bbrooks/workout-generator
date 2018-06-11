@@ -1,8 +1,8 @@
 import * as React from 'react';
 import './App.css';
+import BasicSettings, { IFormSettings } from './BasicSettings';
 import { Orchestrator } from './Orchestrator';
 import PlayButton from './PlayButton';
-import Settings, { IFormSettings } from './Settings';
 
 interface IState {
   playing: boolean;
@@ -40,8 +40,8 @@ class App extends React.Component {
 
     return (
       <>
-        <Settings formSettings={formSettings} />
         <PlayButton onClick={this.handleClick} playing={this.state.playing} />
+        <BasicSettings formSettings={formSettings} />
       </>
     );
   }

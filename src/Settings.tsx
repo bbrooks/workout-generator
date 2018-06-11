@@ -1,93 +1,80 @@
-import * as React from 'react';
-import * as Modal from 'react-modal';
-import settingsIcon from './img/gears.svg';
-import SettingsForm from './SettingsForm';
+// import * as React from 'react';
 
-interface IState {
-    modalIsOpen: boolean;
-}
+// export interface IFormSettings {
+//     rounds: number;
+//     roundSetter: any;
+// }
 
-export interface IFormSettings {
-    rounds: number;
-    roundSetter: any;
-}
+// interface IProps {
+//     formSettings: IFormSettings
+// }
 
-interface IProps {
-    formSettings: IFormSettings
-}
+// interface IOption {
+//     value: number;
+//     label: string;
+// }
 
-const customStyles: Modal.Styles = {
-    content: {
-        color: 'black',
-        textAlign: 'left'
-    }
-};
+// const possibleRoundCounts = [1,2,3,4,5];
 
-const settingsIconStyle: React.CSSProperties = {
-    padding: 10,
-    position: 'absolute',
-    right: 10,
-    top: 10,
-};
+// const roundCountOptions: IOption[] = possibleRoundCounts.map(n => {
+//     return {
+//         label: n + " rounds",
+//         value: n,
+//     }
+// });
 
-const closeBtnStyle: React.CSSProperties = {
-    color: 'black',
-    fontSize: 20,
-    position: 'absolute',
-    right: 10,
-    top: 10,
-}
+// const selectStyle: React.CSSProperties = {
+//     MozAppearance: 'none',
+//     WebkitAppearance: 'none',
+//     background: 'none',
+//     border: 'none',
+//     borderBottom: '1px dashed #EFEFEF',
+//     boxShadow: 'none',
+//     color: "inherit",
+//     font: 'inherit',
+//     fontSize: 'inherit',
+//     textIndent: '0.01px',
+//     textOverflow: "",
+//     width: 'auto',
+// }
 
-Modal.setAppElement('#root')
 
-class Settings extends React.Component<IProps> {
-    public state: IState;
+// class Settings extends React.Component<IProps> {
 
-    constructor(props: IProps) {
-        super(props);
+//     constructor(props: IProps) {
+//         super(props);
+//         this.roundsChangeHandler = this.roundsChangeHandler.bind(this);
+//     }
 
-        this.state = {
-            modalIsOpen: false
-        };
+//     public render() {
+//         return (
+//             <p>
+//                 <span>I want to exercise for</span>
+//                 <select 
+//                     style={selectStyle} 
+//                     onChange={this.roundsChangeHandler}
+//                     defaultValue={String(this.props.formSettings.rounds)}
+//                 >
+//                     {
+//                         roundCountOptions.map(o => (
+//                             <option 
+//                                 key={o.value}
+//                                 value={o.value}
+//                             >
+//                                 {o.label}
+//                             </option>
+//                         ))
+//                     }
+//                 </select>
+//             </p>
+//         );
+//     }
 
-        this.openModal = this.openModal.bind(this);
-        this.closeModal = this.closeModal.bind(this);
-    }
+//     public roundsChangeHandler(e: any) {
+//         let value = parseInt(e.target.value, 10);
+//         value = isNaN(value) ? 3 : value;
+//         this.props.formSettings.roundSetter(value);
+//     }
+// }
 
-    public openModal() {
-        this.setState({ modalIsOpen: true });
-    }
-
-    public closeModal() {
-        this.setState({ modalIsOpen: false });
-    }
-
-    public render() {
-        return (
-            <div>
-                <button 
-                    style={settingsIconStyle}
-                    onClick={this.openModal}
-                >
-                    <img src={settingsIcon} alt="settings" width="30" title="Settings" />
-                </button>
-                <Modal
-                    isOpen={this.state.modalIsOpen}
-                    onRequestClose={this.closeModal}
-                    style={customStyles}
-                >
-                    <button 
-                        style={closeBtnStyle}
-                        onClick={this.closeModal}
-                    >
-                        𝕏
-                    </button>
-                    <h3>Settings</h3>
-                    <SettingsForm {...this.props.formSettings} />
-                </Modal>
-            </div>
-        );
-    }
-}
-
-export default Settings;
+// export default Settings;

@@ -7,14 +7,16 @@ interface IProps {
     onClick: any;
 }
 
+const iconWidth = 120;
+
 class PlayButton extends React.Component<IProps> {
     public render() {
         return (
             <button onClick={this.props.onClick}>
                 {this.props.playing ? 
-                    <img src={pauseIcon} width="120" alt="Pause" title="Pause" />
+                    <img src={pauseIcon} width={iconWidth} alt="Pause" title="Pause" />
                     :
-                    <img src={playIcon} width="120" alt="Play" title="Play" />
+                    <img src={playIcon} width={iconWidth} alt="Play" title="Play" />
                 }
             </button>
         );
