@@ -7,9 +7,11 @@ import PlayButton from './PlayButton';
 interface IState {
   playing: boolean;
   rounds: number;
+  exerciseLength: number
 }
 
-const DEFAULT_ROUNDS = 3;
+export const DEFAULT_ROUNDS = 3;
+export const DEFAULT_EXERCISE_LENGTH = 30;
 
 class App extends React.Component {
   public state: IState
@@ -20,20 +22,25 @@ class App extends React.Component {
     super(props);
     this.audioEl = new Audio();
     this.state = { 
+      exerciseLength: DEFAULT_EXERCISE_LENGTH,
       playing: false,
-      rounds: DEFAULT_ROUNDS
+      rounds: DEFAULT_ROUNDS,
     };
     this.orchestrator = new Orchestrator(this.audioEl);
     this.orchestrator.setRounds(this.state.rounds);
+    this.orchestrator.setExerciseLength(this.state.exerciseLength);
     this.handleClick = this.handleClick.bind(this);
     this.handlePlay = this.handlePlay.bind(this);
     this.handlePause = this.handlePause.bind(this);
     this.setRounds = this.setRounds.bind(this);
+    this.setExerciseLength = this.setExerciseLength.bind(this);
     this.audioEl.onplay = this.handlePlay;
     this.audioEl.onpause = this.handlePause;
   }
   public render() {
     const formSettings: IFormSettings = {
+      exerciseLength: this.state.exerciseLength,
+      exerciseLengthSetter: this.setExerciseLength,
       roundSetter: this.setRounds,
       rounds: this.state.rounds,
     };
@@ -68,6 +75,11 @@ class App extends React.Component {
   public setRounds(n: number) {
     this.setState({rounds: n});
     this.orchestrator.setRounds(n);
+  }
+
+  public setExerciseLength(n: number) {
+    this.setState({exerciseLength: n});
+    this.orchestrator.setExerciseLength(n);
   }
   
 }

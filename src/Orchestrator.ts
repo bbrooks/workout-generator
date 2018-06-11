@@ -1,3 +1,4 @@
+import { DEFAULT_EXERCISE_LENGTH, DEFAULT_ROUNDS } from "./App";
 import { exerciseCategories, sounds } from "./sounds";
 import { shuffle } from "./utils";
 
@@ -5,14 +6,21 @@ export class Orchestrator {
     public hasGone: boolean;
     private audioObj: HTMLAudioElement;
     private rounds: number;
+    private exerciseLength: number;
 
     constructor(audioObj: HTMLAudioElement) {
         this.audioObj = audioObj;
         this.hasGone = false;
+        this.rounds = DEFAULT_ROUNDS;
+        this.exerciseLength = DEFAULT_EXERCISE_LENGTH;
     }
 
     public setRounds(n: number) {
         this.rounds = n;
+    }
+
+    public setExerciseLength(n: number) {
+        this.exerciseLength = n;
     }
 
     public go() {
@@ -52,6 +60,11 @@ export class Orchestrator {
             sequence.push(...this.getSingleExerciseSequence(excercise));
         });
         sequence.push(sounds.transitions.complete);
+
+        if (sequence.indexOf(undefined!) !== -1) {
+            throw new Error('audio sequence contained undefined paths')
+        }
+
         return sequence;
     }
 
@@ -63,7 +76,7 @@ export class Orchestrator {
             sounds.transitions.silence5,
             exercisePath,
             sounds.transitions.go,
-            sounds.transitions.silence30,
+            sounds.transitions['silence' + this.exerciseLength],
             sounds.transitions.rest
         ]
     }

@@ -7,23 +7,7 @@ export function shuffle(array: any[]): any[] {
     return a;
 }
 
-/**
- * Determine if this browser supports emoji.
- * https://gist.github.com/mathisonian/7885295
- */
-export function emojiEnabled() {
-    let context;
-    let smile;
-    if (!document.createElement('canvas').getContext) {
-        return;  
-    } 
-    context = document.createElement('canvas').getContext('2d');
-    if (typeof context!.fillText !== 'function') {
-        return;
-    }
-    smile = String.fromCharCode(55357) + String.fromCharCode(56835);
-    context!.textBaseline = "top";
-    context!.font = "32px Arial";
-    context!.fillText(smile, 0, 0);
-    return context!.getImageData(16, 16, 1, 1).data[0] !== 0;
+export function intVal(thing: any, defaultVal: number = 0): number {
+    const value = parseInt(thing, 10);
+    return isNaN(value) ? defaultVal : value;
 }
