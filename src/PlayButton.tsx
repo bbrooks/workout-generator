@@ -1,19 +1,21 @@
 import * as React from 'react';
-import { emojiEnabled } from './utils';
+import pauseIcon from './img/pause.svg';
+import playIcon from './img/play.svg';
 
 interface IProps {
     playing: boolean
     onClick: any;
 }
 
-const playText = emojiEnabled() ? "▶" : "Play"
-const pauseText = emojiEnabled() ? "⏸" : "Pause"
-
 class PlayButton extends React.Component<IProps> {
     public render() {
         return (
-            <button style={{ fontSize: 120 }} onClick={this.props.onClick}>
-                {this.props.playing ? pauseText : playText}
+            <button onClick={this.props.onClick}>
+                {this.props.playing ? 
+                    <img src={pauseIcon} width="120" alt="Pause" title="Pause" />
+                    :
+                    <img src={playIcon} width="120" alt="Play" title="Play" />
+                }
             </button>
         );
     }

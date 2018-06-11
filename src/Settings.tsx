@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Modal from 'react-modal';
+import settingsIcon from './img/gears.svg';
 import SettingsForm from './SettingsForm';
-import { emojiEnabled } from './utils';
 
 interface IState {
     modalIsOpen: boolean;
@@ -23,9 +23,8 @@ const customStyles: Modal.Styles = {
     }
 };
 
-const settingsIcon = emojiEnabled() ? "⚙️" : 'Settings';
 const settingsIconStyle: React.CSSProperties = {
-    fontSize: 60,
+    padding: 10,
     position: 'absolute',
     right: 10,
     top: 10,
@@ -68,7 +67,9 @@ class Settings extends React.Component<IProps> {
             <div>
                 <button 
                     style={settingsIconStyle}
-                    onClick={this.openModal}>{settingsIcon}
+                    onClick={this.openModal}
+                >
+                    <img src={settingsIcon} alt="settings" width="30" title="Settings" />
                 </button>
                 <Modal
                     isOpen={this.state.modalIsOpen}
