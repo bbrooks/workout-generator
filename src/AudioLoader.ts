@@ -4,13 +4,11 @@ export default class AudioLoader {
         this.context = context;
     }
 
-    public loadSound(url: string, onLoaded: (b: AudioBuffer) => void) {
-            const request = new XMLHttpRequest();
-            request.open('get', url, true);
-            request.responseType = 'arraybuffer';
-            request.onload = () => {
-                this.context.decodeAudioData(request.response, onLoaded);
-            };
-            request.send();
+    public async loadSound(url: string) {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            return new Promise(resolve => {
+                this.context.decodeAudioData(arrayBuffer, resolve);
+            });
     };
 }

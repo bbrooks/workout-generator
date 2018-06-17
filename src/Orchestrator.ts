@@ -4,9 +4,8 @@ import { arrayRandom, shuffle } from "./utils";
 import Sound from "./Sound";
 import AudioLoader from "./AudioLoader";
 
-
 export class Orchestrator {
-    public hasGone: boolean;
+    public isPlaying: boolean;
     private audioObj: HTMLAudioElement;
     private rounds: number;
     private exerciseLength: number;
@@ -15,7 +14,7 @@ export class Orchestrator {
     constructor(audioObj: HTMLAudioElement) {
         this.audioObj = audioObj;
         this.audioObj.src = sounds.transitions.silence15;
-        this.hasGone = false;
+        this.isPlaying = false;
         this.rounds = DEFAULT_ROUNDS;
         this.exerciseLength = DEFAULT_EXERCISE_LENGTH;
         this.audioCtx = new AudioContext();
@@ -29,25 +28,47 @@ export class Orchestrator {
         this.exerciseLength = n;
     }
 
-    public go() {
-        const source = this.audioCtx.createBufferSource();
-        this.hasGone = true;
-        this.audioObj.play();
+    public async go() {
+        this.isPlaying = true;
 
-        this.initializeBackgroundAudio(buffer => {
-            const bgAudio = new Sound(this.audioCtx, buffer, source);
-            const onPlay = () => bgAudio.isPlaying() || bgAudio.play();
-            const onPause = () => this.audioObj.ended || bgAudio.stop();
-            this.audioObj.pause();
-            this.audioObj.addEventListener('play', onPlay);
-            this.audioObj.addEventListener('pause', onPause);
-            this.playSequence(this.getFullSequence(), () => {
-                bgAudio.stop();
-                this.audioObj.removeEventListener('play', onPlay);
-                this.audioObj.removeEventListener('pause', onPause);
-                this.hasGone = false;
-            });
-        });
+        // We have to do some rigamarole before going asynchronous
+        // to make sure iOS allows us to play the audio even after
+        // a short wait. If we don't do this, iOS will say that
+        // the user didn't initiate the play so it's not allowed.
+        const audioSource = this.establishPlayPrecedent()
+
+        // Set up the background audio
+        const audioBuffer = await this.initializeBackgroundAudio();
+        const bgAudio = new Sound(this.audioCtx, audioBuffer, audioSource);
+
+        // Create named callbacks so we can unbind them later
+        const playBackgroundAudio = () => bgAudio.isPlaying() || bgAudio.play();
+        const pauseBackgroundAudio = () => this.audioObj.ended || bgAudio.stop();
+        this.audioObj.addEventListener('play', playBackgroundAudio);
+        this.audioObj.addEventListener('pause', pauseBackgroundAudio);
+
+        // Play the sequence of exercise sounds, which
+        // will trigger the background audio to start
+        await this.playSequence(this.getFullWorkoutSequence());
+        bgAudio.stop();
+
+        // Don't listen for background audio events anymore since the
+        // workout is over
+        this.audioObj.removeEventListener('play', playBackgroundAudio);
+        this.audioObj.removeEventListener('pause', pauseBackgroundAudio);
+
+        this.isPlaying = false;
+    }
+
+    // If we execute this on a user input, we can then
+    // modify the audio object and audio context later
+    // when we want to sequence sounds.
+    // If we don't do this on user input, then iOS will
+    // lock us out of modifying these objects later.
+    private establishPlayPrecedent(): AudioBufferSourceNode {
+        this.audioObj.play();
+        this.audioObj.pause();
+        return this.audioCtx.createBufferSource();
     }
 
     // Gets the files paths of the excercises in order
@@ -72,15 +93,19 @@ export class Orchestrator {
         return paths;
     }
 
-    private initializeBackgroundAudio(onLoaded: (b: AudioBuffer) => void): void {
+    // Initiates the web audio api instance that will loop the
+    // background audio. In iOS there is a delay between loops
+    // if you try to loop an HTMLAudioElement, so this is the
+    // only way to get seamless looping on iOS.
+    private async initializeBackgroundAudio(): Promise<AudioBuffer> {
         const url = arrayRandom(sounds.backgroundMusic);
-        const thing = new AudioLoader(this.audioCtx);
-        thing.loadSound(url, onLoaded);
+        const audioBuffer = await new AudioLoader(this.audioCtx).loadSound(url) as AudioBuffer;
+        return audioBuffer;
     }
 
     // Gets the sequence of sounds needed for the workout,
     // including the transition sounds and breaks.
-    private getFullSequence() {
+    private getFullWorkoutSequence() {
         const sequence = [sounds.transitions.welcome];
         this.getExercisePaths().forEach(excercise => {
             sequence.push(...this.getSingleExerciseSequence(excercise));
@@ -108,18 +133,15 @@ export class Orchestrator {
         ]
     }
 
-    // Plays a sequence of audio paths
-    private playSequence(soundPaths: string[], onComplete: () => void) {
-        const newSoundList = soundPaths.slice();
-        const sound = newSoundList.shift();
-        if (sound) {
-            this.audioObj.src = sound;
-            this.audioObj.onended = () => {
-                this.playSequence(newSoundList, onComplete);
-            }
-            this.audioObj.play();
-        } else {
-            onComplete();
+    // Plays a sequence of audio files
+    private async playSequence(soundPaths: string[]): Promise<void> {
+        for (const soundPath of soundPaths) {
+            this.audioObj.src = soundPath;
+            await new Promise(resolve => {
+                this.audioObj.onended = resolve;
+                this.audioObj.play();
+            });
         }
+        return Promise.resolve();
     }
 }
