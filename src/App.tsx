@@ -7,7 +7,8 @@ import PlayButton from './PlayButton';
 interface IState {
   playing: boolean;
   rounds: number;
-  exerciseLength: number
+  exerciseLength: number,
+  loading: boolean
 }
 
 export const DEFAULT_ROUNDS = 3;
@@ -25,30 +26,37 @@ class App extends React.Component {
       exerciseLength: DEFAULT_EXERCISE_LENGTH,
       playing: false,
       rounds: DEFAULT_ROUNDS,
+      loading: false
     };
-    this.orchestrator = new Orchestrator(this.audioEl);
-    this.orchestrator.setRounds(this.state.rounds);
-    this.orchestrator.setExerciseLength(this.state.exerciseLength);
-    this.handleClick = this.handleClick.bind(this);
-    this.handlePlay = this.handlePlay.bind(this);
-    this.handlePause = this.handlePause.bind(this);
-    this.setRounds = this.setRounds.bind(this);
-    this.setExerciseLength = this.setExerciseLength.bind(this);
-    this.audioEl.onplay = this.handlePlay;
-    this.audioEl.onpause = this.handlePause;
+
+    this.bindFunctions();
+    this.initAudioBindings(this.audioEl);
+
+    this.orchestrator = this.initNewOrchestrator();
   }
+  
   public render() {
     const formSettings: IFormSettings = {
       exerciseLength: this.state.exerciseLength,
-      exerciseLengthSetter: this.setExerciseLength,
-      roundSetter: this.setRounds,
+      exerciseLengthSetter: this.handleExerciseLengthChange,
+      roundSetter: this.handleRoundsChange,
       rounds: this.state.rounds,
     };
 
     return (
       <>
-        <PlayButton onClick={this.handleClick} playing={this.state.playing} />
-        <BasicSettings formSettings={formSettings} />
+        {this.state.loading ||
+          <>
+            <PlayButton onClick={this.handlePlayControlClick} playing={this.state.playing} />
+            <BasicSettings formSettings={formSettings} />
+          </>
+        }
+        {this.state.loading && 
+          <>
+            <div className="loading-spinner" />
+            <div>Loading Workout...</div>
+          </>
+        }
       </>
     );
   }
@@ -60,9 +68,12 @@ class App extends React.Component {
     this.setState({ playing: false })
   }
 
-  public handleClick() {
+  public async handlePlayControlClick() {
     if (!this.orchestrator.isPlaying) {
-      this.orchestrator.go();
+        this.setState({loading: true});
+        const workoutSquence = await this.orchestrator.loadNewWorkoutSequence();
+        this.setState({loading: false});
+        this.orchestrator.go(workoutSquence);
     } else {
       if (this.audioEl.paused) {
         this.audioEl.play();
@@ -71,10 +82,20 @@ class App extends React.Component {
       }
     }
   }
+
+  public stop() {
+    this.orchestrator.reset()
+    this.setState({playing: false});
+  }
   
   public setRounds(n: number) {
     this.setState({rounds: n});
     this.orchestrator.setRounds(n);
+  }
+
+  public handleRoundsChange(n: number) {
+    this.setRounds(n);
+    this.stop();
   }
 
   public setExerciseLength(n: number) {
@@ -82,6 +103,30 @@ class App extends React.Component {
     this.orchestrator.setExerciseLength(n);
   }
   
+  public handleExerciseLengthChange(n: number) {
+    this.setExerciseLength(n);
+    this.stop();
+  }
+
+  private initNewOrchestrator() {
+    const o = new Orchestrator(this.audioEl);
+    o.setRounds(this.state.rounds);
+    o.setExerciseLength(this.state.exerciseLength);
+    return o;
+  }
+
+  private bindFunctions() {
+    this.handlePlayControlClick = this.handlePlayControlClick.bind(this);
+    this.handlePlay = this.handlePlay.bind(this);
+    this.handlePause = this.handlePause.bind(this);
+    this.handleRoundsChange = this.handleRoundsChange.bind(this);
+    this.handleExerciseLengthChange = this.handleExerciseLengthChange.bind(this);
+  }
+
+  private initAudioBindings(audioEl: HTMLAudioElement) {
+    audioEl.onplay = this.handlePlay;
+    audioEl.onpause = this.handlePause;
+  }
 }
 
 

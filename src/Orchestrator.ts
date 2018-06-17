@@ -9,7 +9,7 @@ export class Orchestrator {
     private audioObj: HTMLAudioElement;
     private rounds: number;
     private exerciseLength: number;
-    private audioCtx: AudioContext
+    private audioCtx: AudioContext;
 
     constructor(audioObj: HTMLAudioElement) {
         this.audioObj = audioObj;
@@ -20,6 +20,13 @@ export class Orchestrator {
         this.audioCtx = new AudioContext();
     }
 
+    public reset() {
+        this.audioObj.pause();
+        this.audioCtx.close();
+        this.audioCtx = new AudioContext();
+        this.isPlaying = false;
+    }
+
     public setRounds(n: number) {
         this.rounds = n;
     }
@@ -27,8 +34,26 @@ export class Orchestrator {
     public setExerciseLength(n: number) {
         this.exerciseLength = n;
     }
+    
+    public async loadNewWorkoutSequence(): Promise<string[]> {
+        const workoutSequence = this.getRandomWorkoutSequence();
+        const loadPromises = workoutSequence.map(url => {
+            return new Promise((resolve, reject) => {
+                const audio = new Audio(url);
+                audio.addEventListener('canplaythrough', resolve);
+                audio.addEventListener('error', reject);
+            });
+        });
+        await Promise.all(loadPromises);
+        return workoutSequence
+    };
 
-    public async go() {
+    public async go(workoutSequence: string[]) {
+        
+        if (this.isPlaying) {
+            return; 
+        }
+
         this.isPlaying = true;
 
         // We have to do some rigamarole before going asynchronous
@@ -49,7 +74,7 @@ export class Orchestrator {
 
         // Play the sequence of exercise sounds, which
         // will trigger the background audio to start
-        await this.playSequence(this.getFullWorkoutSequence());
+        await this.playSequence(workoutSequence);
         bgAudio.stop();
 
         // Don't listen for background audio events anymore since the
@@ -71,8 +96,8 @@ export class Orchestrator {
         return this.audioCtx.createBufferSource();
     }
 
-    // Gets the files paths of the excercises in order
-    private getExercisePaths(): string[] {
+    // Gets the files paths of the excercises in randomized order
+    private getRandomizedExercisePaths(): string[] {
         const paths: string[] = [];
 
         // Randomize the different categories, but start with cardio
@@ -105,9 +130,9 @@ export class Orchestrator {
 
     // Gets the sequence of sounds needed for the workout,
     // including the transition sounds and breaks.
-    private getFullWorkoutSequence() {
+    private getRandomWorkoutSequence() {
         const sequence = [sounds.transitions.welcome];
-        this.getExercisePaths().forEach(excercise => {
+        this.getRandomizedExercisePaths().forEach(excercise => {
             sequence.push(...this.getSingleExerciseSequence(excercise));
         });
         sequence.push(sounds.transitions.complete);
@@ -122,6 +147,9 @@ export class Orchestrator {
 
     // Gets one exercise sequence, including intro sounds and silence
     private getSingleExerciseSequence(exercisePath: string) {
+        return [
+            exercisePath
+        ];
         return [
             sounds.transitions.next,
             exercisePath,
@@ -144,4 +172,5 @@ export class Orchestrator {
         }
         return Promise.resolve();
     }
+
 }

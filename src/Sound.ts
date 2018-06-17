@@ -15,15 +15,24 @@ export default class Sound {
     }
 
     public setup() {
+        if(this.context.state === 'closed') {
+            return;
+        }
+
         if (this.source.buffer) {
             this.source = this.context.createBufferSource();
         }
+
         this.source.buffer = this.buffer;
         this.source.connect(this.context.destination);
         this.source.loop = true;
     }
 
     public play() {
+        if(this.context.state === 'closed') {
+            return;
+        }
+
         this.playing = true;
         this.setup();
         this.source.start(this.context.currentTime);
@@ -33,6 +42,10 @@ export default class Sound {
     }
 
     public stop() {
+        if(this.context.state === 'closed') {
+            return;
+        }
+
         this.source.stop(this.context.currentTime);
         this.playing = false;
     }
