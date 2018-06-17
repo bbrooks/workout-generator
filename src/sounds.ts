@@ -7,7 +7,10 @@ export const exerciseCategories = {
 
 export const sounds = {
     backgroundMusic: [
-        process.env.PUBLIC_URL + '/sounds/background-music/wall-sit.mp3',
+        // process.env.PUBLIC_URL + '/sounds/background-music/beat1.mp3',
+        // process.env.PUBLIC_URL + '/sounds/background-music/beat2.mp3',
+        // process.env.PUBLIC_URL + '/sounds/background-music/beat3.mp3',
+        process.env.PUBLIC_URL + '/sounds/background-music/testogg.m4a',
     ],
     excercises: {
         [exerciseCategories.cardio]: [

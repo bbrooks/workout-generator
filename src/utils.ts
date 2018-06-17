@@ -11,3 +11,7 @@ export function intVal(thing: any, defaultVal: number = 0): number {
     const value = parseInt(thing, 10);
     return isNaN(value) ? defaultVal : value;
 }
+
+export function arrayRandom(array: any[]): any {
+    return array[Math.floor(Math.random()*array.length)];
+}
