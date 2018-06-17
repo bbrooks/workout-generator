@@ -61,7 +61,7 @@ class App extends React.Component {
   }
 
   public handleClick() {
-    if (!this.orchestrator.hasGone) {
+    if (!this.orchestrator.isPlaying) {
       this.orchestrator.go();
     } else {
       if (this.audioEl.paused) {
