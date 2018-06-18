@@ -15,27 +15,23 @@ export const DEFAULT_EXERCISE_LENGTH = 30;
 
 class App extends React.Component {
   public state: IState
-  private audioEl: HTMLAudioElement;
   private orchestrator: Orchestrator;
 
   constructor(props: any) {
     super(props);
-    this.audioEl = new Audio();
     this.state = { 
       exerciseLength: DEFAULT_EXERCISE_LENGTH,
       playing: false,
       rounds: DEFAULT_ROUNDS,
     };
-    this.orchestrator = new Orchestrator(this.audioEl);
-    this.orchestrator.setRounds(this.state.rounds);
-    this.orchestrator.setExerciseLength(this.state.exerciseLength);
+    this.orchestrator = new Orchestrator();
+    // this.orchestrator.setRounds(this.state.rounds);
+    // this.orchestrator.setExerciseLength(this.state.exerciseLength);
     this.handleClick = this.handleClick.bind(this);
     this.handlePlay = this.handlePlay.bind(this);
     this.handlePause = this.handlePause.bind(this);
     this.setRounds = this.setRounds.bind(this);
     this.setExerciseLength = this.setExerciseLength.bind(this);
-    this.audioEl.onplay = this.handlePlay;
-    this.audioEl.onpause = this.handlePause;
   }
   public render() {
     const formSettings: IFormSettings = {
@@ -61,25 +57,25 @@ class App extends React.Component {
   }
 
   public handleClick() {
-    if (!this.orchestrator.isPlaying) {
+    if (!this.orchestrator.hasStarted) {
       this.orchestrator.go();
     } else {
-      if (this.audioEl.paused) {
-        this.audioEl.play();
+      if(this.orchestrator.isPlaying) {
+        this.orchestrator.pause();
       } else {
-        this.audioEl.pause();
+        this.orchestrator.resume();
       }
     }
   }
   
   public setRounds(n: number) {
     this.setState({rounds: n});
-    this.orchestrator.setRounds(n);
+    // this.orchestrator.setRounds(n);
   }
 
   public setExerciseLength(n: number) {
     this.setState({exerciseLength: n});
-    this.orchestrator.setExerciseLength(n);
+    // this.orchestrator.setExerciseLength(n);
   }
   
 }
