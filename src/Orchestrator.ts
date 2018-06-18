@@ -3,6 +3,7 @@ import { exerciseCategories, sounds } from "./sounds";
 import { arrayRandom, shuffle } from "./utils";
 import Sound from "./Sound";
 import AudioLoader from "./AudioLoader";
+import createAudioContext from "./SafeAudioCtx";
 
 export class Orchestrator {
     public isPlaying: boolean;
@@ -17,7 +18,7 @@ export class Orchestrator {
         this.isPlaying = false;
         this.rounds = DEFAULT_ROUNDS;
         this.exerciseLength = DEFAULT_EXERCISE_LENGTH;
-        this.audioCtx = new AudioContext();
+        this.audioCtx = createAudioContext();
     }
 
     public setRounds(n: number) {
