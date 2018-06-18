@@ -4,7 +4,7 @@ export default class Sound {
     private source: AudioBufferSourceNode;
     private pausedAt: number;
     private startedAt: number;
-    private outstandingResolve: any;
+    // private outstandingResolve: any;
 
     constructor(context: AudioContext, buffer: AudioBuffer, source: AudioBufferSourceNode) {
         this.context = context;
@@ -24,24 +24,15 @@ export default class Sound {
         this.setup();
         this.startedAt = this.context.currentTime;
         this.source.start(this.startedAt, this.pausedAt);
-        if(this.outstandingResolve) {
-            return new Promise(resolve => {
-                this.source.onended = () => {
-                    this.outstandingResolve();
-                    this.outstandingResolve = null;
-                    resolve();
-                };
-            });
-        } else {
-            return new Promise((resolve, reject) => {
-                this.outstandingResolve = resolve;
-                this.source.onended = resolve;
-            });
-        }
+
+        return new Promise((resolve, reject) => {
+            this.source.onended = resolve;
+        });
     }
 
     public pause() {
-        this.pausedAt = this.context.currentTime - this.startedAt;
+        const additionalTime = this.pausedAt ? this.pausedAt : 0;
+        this.pausedAt = this.context.currentTime - this.startedAt + additionalTime;
         this.source.onended = null;
         this.stop();
     }
