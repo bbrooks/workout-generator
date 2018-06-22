@@ -1,17 +1,15 @@
 export default class Sound {
     private context: AudioContext;
     private buffer: AudioBuffer;
-    private source: AudioBufferSourceNode
-    private playing: boolean;
+    private source: AudioBufferSourceNode;
+    private pausedAt: number;
+    private startedAt: number;
+    private outstandingResolve: null | ((resolvedWith?: any) => void);
 
     constructor(context: AudioContext, buffer: AudioBuffer, source: AudioBufferSourceNode) {
         this.context = context;
         this.buffer = buffer;
         this.source = source;
-    }
-
-    public isPlaying() {
-        return this.playing;
     }
 
     public setup() {
@@ -20,20 +18,47 @@ export default class Sound {
         }
         this.source.buffer = this.buffer;
         this.source.connect(this.context.destination);
-        this.source.loop = true;
     }
 
-    public play() {
-        this.playing = true;
+    public play(loop: boolean = false) {
         this.setup();
-        this.source.start(this.context.currentTime);
-        this.source.onended = () => {
-            this.playing = false;
+        this.startedAt = this.context.currentTime;
+        this.source.loop = loop;
+        this.source.start(this.startedAt, this.pausedAt);
+        
+        if (loop) {
+            return Promise.resolve();
+        }
+
+        if (this.outstandingResolve) {
+            return new Promise(resolve => {
+                this.source.onended = () => {
+                    if(this.outstandingResolve) {
+                        this.outstandingResolve();
+                    }
+                    this.outstandingResolve = null;
+                    resolve();
+                };
+            });
+        } else {
+            return new Promise((resolve, reject) => {
+                this.outstandingResolve = resolve;
+                this.source.onended = () => {
+                    this.source.onended = null;
+                    resolve();
+                };
+            });
         }
     }
 
+    public pause() {
+        const additionalTime = this.pausedAt ? this.pausedAt : 0;
+        this.pausedAt = this.context.currentTime - this.startedAt + additionalTime;
+        this.source.onended = null;
+        this.stop();
+    }
+
     public stop() {
-        this.source.stop(this.context.currentTime);
-        this.playing = false;
+        this.source.stop();
     }
 }
